@@ -23,6 +23,7 @@ insert aluno values(9,'Francisco','3a',3500, 4,3, 'Curitiba')
 insert aluno values(10,'Marialva','3B',4500, 8,9, 'São José dos Pinhais')
 */
 
+------------------------------------EXEMPLO-----------------------------------
 /*CRIAÇÃO DE PROCEDURE E SELECIONANDO ALUNOS DO MUNICIPIO DE CURITIBA*/
 /*
 CREATE PROCEDURE sp_AlunoCWB
@@ -42,7 +43,7 @@ SELECT * FROM ALUNO WHERE municipio = @municipio
 EXECUTE sp_Aluno_Municipio 'Curitiba'
 */
 
-
+/*
 CREATE PROCEDURE sp_desconto @matricula int
 AS
 /* DECLARAÇÃO DE VARIAVEIS LOCAIS */
@@ -66,3 +67,73 @@ PRINT @desconto
 
 
 SELECT * FROM ALUNO
+*/
+
+------------------------------------EXERCÍCIOS-----------------------------------
+/*1. Crie uma stored procedure que selecione os alunos do município de Curitiba*/
+/*
+CREATE PROCEDURE Aluno_Curitiba
+AS 
+SELECT * FROM ALUNO where municipio = 'Curitiba'
+EXECUTE Aluno_Curitiba
+DROP PROCEDURE Aluno_Curitiba
+*/
+
+/*2. Crie uma stored procedure que selecione o número de alunos do município
+de São José dos Pinhais com média maior ou igual a 7. */
+/*
+CREATE PROCEDURE Alunos_Aprovados
+AS
+SELECT COUNT(*) FROM ALUNO
+WHERE municipio = 'São josé dos Pinhais'
+and(nota1 + nota2)/2 >= 7
+EXECUTE Alunos_Aprovados
+*/
+
+/*3. Crie uma stored procedure que some o valor das mensalidades por
+município passando o nome do município por parâmetro.*/
+/*
+CREATE PROCEDURE Mensal_Aluno
+@municipio varchar(50)
+AS
+SELECT SUM(mensalidade) from ALUNO WHERE municipio = @municipio
+EXECUTE Mensal_Aluno 'Curitiba'
+DROP PROCEDURE Mensal_Aluno
+*/
+
+/*4. Crie uma stored procedure que calcule a média de um aluno, passando a
+matricula do mesmo como parâmetro e informe se o mesmo está aprovado
+para média maior igual a sete, reprovado para média menor que quatro e em
+recuperação para médias maiores ou igual a quatro e menores que sete*/
+/*
+CREATE PROCEDURE Alunos_CalcMedia
+/*PASSA PARAMETRO*/
+@matricula int
+AS
+/*DECLARA VARIAVEL*/
+DECLARE @media numeric(3,1)
+SET @media = (SELECT(nota1+nota2)/2 FROM ALUNO WHERE matricula = @matricula)
+IF @media >= 7
+BEGIN
+	SELECT 'APROVADO ' + CONVERT(CHAR(5), @MEDIA)
+END
+ELSE IF @media < 7
+BEGIN
+	SELECT 'REPROVADO ' + CONVERT(CHAR(5), @MEDIA)
+END
+ELSE
+	PRINT('RECUPERAÇÃO ' + CONVERT(CHAR(5), @MEDIA))
+
+EXECUTE Alunos_CalcMedia 1
+DROP PROCEDURE Alunos_CalcMedia
+*/
+
+/*5. Crie uma stored procedure que mostre o nome e a média de todos alunos do
+município de Curitiba.*/
+/*
+CREATE PROCEDURE SP_AlunoMedia
+AS
+SELECT NOME,(nota1 + nota2)/2 as Media
+FROM ALUNO WHERE municipio = 'São José dos Pinhais'
+EXECUTE SP_AlunoMedia
+*/
