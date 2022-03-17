@@ -1,0 +1,68 @@
+/*
+CREATE DATABASE DB_REIS
+USE DB_REIS
+
+create table ALUNO
+(matricula int primary key,
+ nome varchar(100),
+ turma varchar(100),
+ mensalidade numeric(7,2),
+ nota1 numeric(3,1),
+ nota2 numeric(3,1),
+ municipio varchar(100))
+
+insert aluno values(1,'José','3a',1500, 8,9, 'Curitiba')
+insert aluno values(2,'Maira','3B',500, 2,9, 'São José dos Pinhais')
+insert aluno values(3,'Pedro','3a',2500, 6,5, 'Curitiba')
+insert aluno values(4,'Tereza','3B',500, 9,9, 'São José dos Pinhais')
+insert aluno values(5,'Marli','3a',3500, 4,2, 'Curitiba')
+insert aluno values(6,'Roberto','3B',750, 8,9, 'Curitiba')
+insert aluno values(7,'Carlos','3a',100, 7,5, 'São José dos Pinhais')
+insert aluno values(8,'Maria','3B',2500, 10,8, 'Curitiba')
+insert aluno values(9,'Francisco','3a',3500, 4,3, 'Curitiba')
+insert aluno values(10,'Marialva','3B',4500, 8,9, 'São José dos Pinhais')
+*/
+
+/*CRIAÇÃO DE PROCEDURE E SELECIONANDO ALUNOS DO MUNICIPIO DE CURITIBA*/
+/*
+CREATE PROCEDURE sp_AlunoCWB
+AS
+SELECT * FROM ALUNO WHERE municipio = 'Curitiba'
+EXECUTE sp_AlunoCWB
+*/
+
+/*--------------------------------------------------------------------*/
+
+/*CRIAÇÃO DE PROCEDURE E SELECIONANDO ALUNOS DO MUNICIPIO DE CURITIBA COM PARAMETROS*/
+/*
+CREATE PROCEDURE sp_Aluno_Municipio
+@municipio varchar(50)
+AS
+SELECT * FROM ALUNO WHERE municipio = @municipio
+EXECUTE sp_Aluno_Municipio 'Curitiba'
+*/
+
+
+CREATE PROCEDURE sp_desconto @matricula int
+AS
+/* DECLARAÇÃO DE VARIAVEIS LOCAIS */
+DECLARE @mensalidade numeric(7,2), @desconto numeric(7,2), @media
+numeric(3,1)
+/* DEFINE O VALOR DAS VARIÁVEIS */
+SET @mensalidade = (SELECT mensalidade FROM ALUNO WHERE matricula = @matricula)
+SET @media = (SELECT (nota1+nota2)/2 FROM ALUNO WHERE matricula = @matricula)
+/* VERIFICAÇÃO DO VALOR DA MENSALIDADE */
+IF @mensalidade >= 1000 and @media >= 7
+BEGIN
+SET @desconto = @mensalidade * 0.9
+END
+ELSE
+BEGIN
+SET @desconto = @mensalidade * 0.95
+END
+/* IMPRESSÃO DO DESCONTO E DA MATRÍCULA */
+PRINT @matricula
+PRINT @desconto
+
+
+SELECT * FROM ALUNO
