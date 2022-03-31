@@ -1,0 +1,88 @@
+CREATE DATABASE DB_REIS
+USE DB_REIS
+
+CREATE TABLE ALUNO(
+	matricula int primary key,
+	nome varchar(100),
+	nota1 numeric(3,1),
+	nota2 numeric(3,1),
+	codDis int,
+	mensalidade numeric(7,2),
+	qtdeFalta int
+ )
+
+INSERT INTO ALUNO VALUES(123, 'Alberto José ALves', 60.5, 85.3, 3, 950.51, 3);
+INSERT INTO ALUNO VALUES(456, 'Maria Carla', 95.2, 72.7, 3, 950.00, 1);
+INSERT INTO ALUNO VALUES(789, 'José Pedro', 55.6, 77, 2, 1000, 5);
+
+/*1) Desenvolva uma procedure em PL/SQL que faça a verificação na tabela aluno
+se o mesmo está aprovado (maior igual a 7), recuperação (maior que 4 e menor
+que 7) e reprovado (menor que 4). Crie a tabela com os seguintes campos
+código, nome, nota1, nota2, coddis, mensalidade, qtdefalta) */
+CREATE PROCEDURE Alunos_Aprovados
+@matricula int
+AS
+DECLARE @media numeric(3,1)
+SET @media = (SELECT (nota1 + nota2)/2 from ALUNO WHERE matricula = @matricula)
+IF @media >= 7
+	BEGIN 
+		PRINT('APROVADO ' + CONVERT(CHAR(5), @media))
+	END
+ELSE IF @media >= 4 AND @media < 7
+	BEGIN
+		PRINT('RECUPERAÇÃO ' + CONVERT(CHAR(5), @media))
+	END
+ELSE IF @media < 4 
+	BEGIN
+		PRINT('REPROVADO ' + CONVERT(CHAR(5), @media))
+	END
+EXECUTE Alunos_Aprovados 789
+
+
+/*2) Crie uma procedure em PL/SQL para inserir um aluno na tabela apenas se a
+quantidade de alunos for menor que 10 senão apresentar a quantidade e
+mensagem turma lotada. */
+CREATE PROCEDURE Insere_Aluno
+AS
+DECLARE @qtdeCampos int
+SET @qtdeCampos = (SELECT COUNT(*) FROM ALUNO)
+IF @qtdeCampos < 6
+	BEGIN
+		INSERT INTO ALUNO VALUES (784, 'Maria De Lurdes', 66.2, 76.2, 2, 1000, 1);
+	END
+ELSE
+	BEGIN
+		PRINT('TURMA LOTADA, TOTAL DE ALUNOS DE ' + CONVERT(CHAR(5), @qtdeCampos))
+	END
+EXECUTE Insere_Aluno
+DROP PROCEDURE Insere_Aluno
+SELECT * FROM ALUNO
+
+/*3) Faça uma procedure em PL/SQL que apresente a quantidade de alunos
+aprovados, em recuperação e aprovados. */
+CREATE PROCEDURE VerificaAprovados
+AS
+DECLARE @qtdeAlunos int
+SET @qtdeAlunos = (SELECT COUNT(*) FROM ALUNO)
+
+execute VerificaAprovados
+
+/*4) Crie a tabela disciplina (código, nome, cargaho) e relacione com a tabela aluno
+e insira os dados na tabela disciplina e no campo da tabela aluno e elabore uma
+procedure em PL/SQL que apresente os seguintes valores:
+a) Para a disciplina Matemática mensalidade mais 10%
+b) Para Banco de dados mensalidade menos 20 %
+c) Para Programação mensalidade mais 15% */
+CREATE TABLE disciplina(
+	fk_ALUNO_matricula int FOREIGN KEY REFERENCES ALUNO (matricula),
+	codigo int primary key,
+	nome varchar(100),
+	cargHoraria int
+ )
+
+INSERT INTO disciplina VALUES (1, 'Matemática', 108);
+INSERT INTO disciplina VALUES (2, 'Banco de Dados', 110);
+INSERT INTO disciplina VALUES (3, 'Programação', 124);
+
+SELECT alu.mensalidade, alu.codDis from ALUNO alu
+inner join disciplina on alu.matricula = fk_ALUNO_matricula
