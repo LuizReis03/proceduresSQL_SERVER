@@ -1,0 +1,55 @@
+USE DB_REIS
+
+/*1) Crie um stored procedure em PL/SQL que passe por parâmetro o código da
+disciplina e mostre a qtde de alunos e a soma das mensalidades*/
+CREATE PROCEDURE SomaMensalidade
+@codDis int
+AS
+DECLARE @soma numeric(7,2)
+DECLARE @qtdeAlunos int
+SET @qtdeAlunos = (SELECT COUNT(@codDis) FROM ALUNO WHERE codDis = @codDis)
+SET @soma = (SELECT SUM(mensalidade) FROM ALUNO WHERE codDis = @codDis)
+PRINT('QUANTIDADE DE ALUNOS: ' + CONVERT(CHAR(5), @qtdeAlunos))
+PRINT('SOMA DAS MENSALIDADES: ' + CONVERT(CHAR(10), @soma))
+
+DROP PROCEDURE SomaMensalidade
+EXECUTE SomaMensalidade 2
+
+SELECT * FROM ALUNO
+
+/*2) Elabore uma procedure em PL/SQL que passe por parâmetro um código de
+aluno e verifique se está aprovado, recuperação ou reprovado, também está
+reprovado de a qtde de faltas for maior 3.*/
+CREATE PROCEDURE ARR
+@matricula int
+AS
+DECLARE @media numeric(3,2)
+DECLARE @qtdeFaltas int
+SET @media = (SELECT (nota1 + nota2)/2 FROM ALUNO)
+SET @qtdeFaltas = (SELECT qtdeFalta FROM ALUNO)
+
+IF @qtdeFaltas > 3
+	BEGIN 
+		PRINT('REPROVADO ')
+	END
+
+ELSE
+	BEGIN
+		IF @media >= 7
+			BEGIN 
+				PRINT('APROVADO ')
+			END
+		ELSE IF @media >= 4 AND @media < 7
+			BEGIN
+				PRINT('RECUPERAÇÃO ' + CONVERT(CHAR(5), @media))
+			END
+		ELSE IF @media < 4 
+			BEGIN
+				PRINT('REPROVADO ' + CONVERT(CHAR(5), @media))
+			END
+	END
+
+
+drop procedure ARR
+
+EXECUTE ARR 123
