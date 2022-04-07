@@ -8,11 +8,11 @@ CREATE TABLE ALUNO(
 	nota2 numeric(3,1),
 	codDis int,
 	mensalidade numeric(7,2),
-	qtdeFalta int
+	qtdeFalta int,
+	fk_codigo_disciplina int FOREIGN KEY REFERENCES disciplina(codigo)
  )
 
  CREATE TABLE disciplina(
-	fk_ALUNO_matricula int FOREIGN KEY REFERENCES ALUNO (matricula),
 	codigo int primary key,
 	nome varchar(100),
 	cargHoraria int
@@ -21,13 +21,13 @@ CREATE TABLE ALUNO(
  drop table ALUNO
  drop table disciplina
 
-INSERT INTO ALUNO VALUES(123, 'Alberto José ALves', 60.5, 85.3, 1, 950.51, 3);
-INSERT INTO ALUNO VALUES(456, 'Maria Carla', 95.2, 72.7, 3, 950.00, 1);
-INSERT INTO ALUNO VALUES(789, 'José Pedro', 55.6, 77, 2, 1000, 5);
+INSERT INTO ALUNO VALUES(123, 'Alberto José ALves', 60.5, 55.3, 1, 950.51, 3, 1);
+INSERT INTO ALUNO VALUES(456, 'Maria Carla', 95.2, 72.7, 3, 950.00, 1, 2);
+INSERT INTO ALUNO VALUES(789, 'José Pedro', 55.6, 26, 2, 1000, 5, 3);
 
-INSERT INTO disciplina VALUES (123, 1, 'Matemática', 108);
-INSERT INTO disciplina VALUES (789, 2, 'Banco de Dados', 110);
-INSERT INTO disciplina VALUES (456, 3, 'Programação', 124);
+INSERT INTO disciplina VALUES (1, 'Matemática', 108);
+INSERT INTO disciplina VALUES (2, 'Banco de Dados', 110);
+INSERT INTO disciplina VALUES (3, 'Programação', 124);
 
 /*1) Desenvolva uma procedure em PL/SQL que faça a verificação na tabela aluno
 se o mesmo está aprovado (maior igual a 7), recuperação (maior que 4 e menor
@@ -51,6 +51,7 @@ ELSE IF @media < 4
 		PRINT('REPROVADO ' + CONVERT(CHAR(5), @media))
 	END
 EXECUTE Alunos_Aprovados 789
+DROP PROCEDURE Alunos_Aprovados
 
 
 /*2) Crie uma procedure em PL/SQL para inserir um aluno na tabela apenas se a
@@ -98,28 +99,59 @@ a) Para a disciplina Matemática mensalidade mais 10%
 b) Para Banco de dados mensalidade menos 20 %
 c) Para Programação mensalidade mais 15% */
 
-SELECT alu.codDis, alu.matricula from ALUNO alu
-inner join disciplina on alu.matricula = fk_ALUNO_matricula
+CREATE PROCEDURE sp_disciplina
+@disci int
+AS
 
+if @disci = 1
+	BEGIN
+		select a.nome, d.nome, a.mensalidade*1.1 from aluno a
+		inner join disciplina d
+		on a.coddis = d.codigo
+		where a.coddis = @disci
+	END
+else if @disci = 2
+	BEGIN
+		select a.nome, d.nome, a.mensalidade*0.9 from aluno a
+		inner join disciplina d
+		on a.coddis = d.codigo
+		where a.coddis = @disci
+	END
+else if @disci = 3
+	BEGIN
+		select a.nome, d.nome, a.mensalidade*1.15 from aluno a
+		inner join disciplina d
+		on a.coddis = d.codigo
+		where a.coddis = @disci
+	END
+EXECUTE sp_disciplina 2
+drop procedure sp_disciplina
 
 /*5) Desenvolva uma procedure em PL/SQL que passe por parâmetro o código do
 aluno e se não encontrar mostrar a mensagem aluno não cadastrado, se
 encontrar mostrar o nome a media e a disciplina cursada. */
-CREATE PROCEDURE AlunoExiste
-@matricula int
-AS
-DECLARE @media numeric(3,1)
-SET @media = (SELECT (nota1 + nota2)/2 from ALUNO WHERE matricula = @matricula)
-SELECT matricula FROM ALUNO where matricula = @matricula
-IF @matricula = null
-	BEGIN
-		PRINT('ALUNO NÃO CADASTRADO NO SISTEMA!')
-	END
-ELSE
-	BEGIN
-		PRINT('SUA MÉDIA É: ' + CONVERT(CHAR(5), @media))
-		PRINT('DISCIPLINA CURSADA: ')
-	END
+CREATE PROCEDURE sp_alu
+@codigo int
+as
+declare @media numeric(3,1)
+declare @disci varchar(50)
+declare @nome varchar(50)
 
-drop procedure AlunoExiste
-execute AlunoExiste 3
+set @media = (select (nota1+nota2)/2 from ALUNO where codDis = @codigo)
+
+set @nome = (select nome from aluno where codDis = @codigo)
+
+set @disci = (select d.nome from aluno a 
+inner join disciplina d on a.codDis = d.codigo
+where a.codDIs = @codigo)
+
+if @media > 0
+	begin
+
+		select @nome
+		select @disci
+		select @media
+
+	end
+
+execute sp_alu 1
