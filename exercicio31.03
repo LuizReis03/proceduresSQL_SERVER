@@ -13,7 +13,7 @@ PRINT('QUANTIDADE DE ALUNOS: ' + CONVERT(CHAR(5), @qtdeAlunos))
 PRINT('SOMA DAS MENSALIDADES: ' + CONVERT(CHAR(10), @soma))
 
 DROP PROCEDURE SomaMensalidade
-EXECUTE SomaMensalidade 2
+EXECUTE SomaMensalidade 3
 
 SELECT * FROM ALUNO
 
@@ -23,10 +23,10 @@ reprovado de a qtde de faltas for maior 3.*/
 CREATE PROCEDURE ARR
 @matricula int
 AS
-DECLARE @media numeric(3,2)
+DECLARE @media numeric(3,1)
 DECLARE @qtdeFaltas int
-SET @media = (SELECT (nota1 + nota2)/2 FROM ALUNO)
-SET @qtdeFaltas = (SELECT qtdeFalta FROM ALUNO)
+SET @media = (SELECT (nota1 + nota2)/2 FROM ALUNO where matricula = @matricula)
+SET @qtdeFaltas = (SELECT qtdeFalta FROM ALUNO where matricula = @matricula)
 
 IF @qtdeFaltas > 3
 	BEGIN 
